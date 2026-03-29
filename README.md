@@ -71,15 +71,15 @@ The FastAPI wrapper will expose the environment on `http://localhost:7860`.
 Endpoints:
 * `GET /tasks`
 * `POST /grader`
-* `POST /baseline`
+* `POST /baseline` (runs inference.py)
 
-## How to Run the Baseline
+## How to Run Inference
 
-The baseline script is a zero-shot, prompt-based loop leveraging `gpt-4o-mini` to attempt the tasks.
+The inference script is a zero-shot, prompt-based loop leveraging `gpt-4o-mini` to attempt the tasks.
 
 ```bash
 export OPENAI_API_KEY="sk-..."
-python baseline.py
+python inference.py
 ```
 
 ## Baseline Scores
