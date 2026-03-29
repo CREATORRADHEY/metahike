@@ -4,3 +4,4 @@ pydantic
 openai
 pytest
 PyYAML
+openenv-core>=0.2.0

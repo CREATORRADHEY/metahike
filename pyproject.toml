@@ -5,6 +5,7 @@ description = "Customer Support AI Training Environment for OpenEnv"
 authors = [
     { name = "Divyansh Dusad" }
 ]
+requires-python = ">=3.11"
 dependencies = [
     "fastapi",
     "uvicorn",
@@ -12,7 +13,11 @@ dependencies = [
     "openai",
     "pytest",
     "PyYAML",
+    "openenv-core>=0.2.0"
 ]
+
+[project.scripts]
+server = "server.app:main"
 
 [build-system]
 requires = ["setuptools>=61.0"]
