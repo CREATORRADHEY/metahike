@@ -1,6 +1,6 @@
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Body
 from pydantic import BaseModel
-from typing import List, Dict, Any
+from typing import List, Dict, Any, Optional
 import subprocess
 import json
 import os
@@ -73,7 +73,7 @@ class ResetRequest(BaseModel):
 global_env = SupportEnv()
 
 @app.post("/reset")
-def env_reset(req: ResetRequest = None):
+def env_reset(req: Optional[ResetRequest] = Body(None)):
     if req is None:
         req = ResetRequest()
         
