@@ -1,0 +1,19 @@
+[project]
+name = "metahike-support-env"
+version = "1.0.0"
+description = "Customer Support AI Training Environment for OpenEnv"
+authors = [
+    { name = "Divyansh Dusad" }
+]
+dependencies = [
+    "fastapi",
+    "uvicorn",
+    "pydantic",
+    "openai",
+    "pytest",
+    "PyYAML",
+]
+
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
