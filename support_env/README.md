@@ -1,3 +1,12 @@
+---
+title: Metahike Support Env
+emoji: 🚀
+colorFrom: blue
+colorTo: indigo
+sdk: docker
+pinned: false
+---
+
 # Customer Support Simulator: AI Training Environment
 
 ## What is this environment?
