@@ -1,4 +1,13 @@
-# Metahike: Customer Support Simulator
+---
+title: Metahike Support Env
+emoji: 🚀
+colorFrom: blue
+colorTo: indigo
+sdk: docker
+pinned: false
+---
+
+# Customer Support Simulator: AI Training Environment
 
 ## What is this environment?
 
@@ -55,7 +64,6 @@ This environment can be deployed directly via Docker + Hugging Face Spaces.
 
 **Build and Run with Docker:**
 ```bash
-cd support_env
 docker build -t support-env .
 docker run -p 7860:7860 support-env
 ```
@@ -70,7 +78,6 @@ Endpoints:
 The baseline script is a zero-shot, prompt-based loop leveraging `gpt-4o-mini` to attempt the tasks.
 
 ```bash
-cd support_env
 export OPENAI_API_KEY="sk-..."
 python baseline.py
 ```

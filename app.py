@@ -16,7 +16,7 @@ class GraderRequest(BaseModel):
     history: List[Dict[str, Any]]
 
 class ResetRequest(BaseModel):
-    task_id: str
+    task_id: str = "task_categorize_easy"
 
 # Global environment instance for simple evaluation pings
 global_env = SupportEnv()
@@ -84,9 +84,9 @@ def run_grader(req: GraderRequest):
 @app.post("/baseline")
 def run_baseline():
     try:
-        # Run the baseline script inside a subprocess
+        # Run the inference script inside a subprocess
         # We capture stdout and parse it
-        result = subprocess.run(["python", "baseline.py"], capture_output=True, text=True, check=True)
+        result = subprocess.run(["python", "inference.py"], capture_output=True, text=True, check=True)
         # Assuming baseline.py prints a JSON with scores at the very end
         lines = result.stdout.strip().split('\n')
         # find the last valid json line
