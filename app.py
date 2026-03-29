@@ -3,12 +3,63 @@ from pydantic import BaseModel
 from typing import List, Dict, Any
 import subprocess
 import json
+import os
+import yaml
 
 from core.tasks import TASKS
 from core.env import SupportEnv
 from core.types import Action
 
-app = FastAPI(title="Customer Support AI Training Environment", docs_url="/")
+app = FastAPI(title="Customer Support AI Training Environment", docs_url="/docs")
+
+# Load environment config for metadata/schema endpoints
+with open("openenv.yaml", "r") as f:
+    config = yaml.safe_load(f)
+
+@app.get("/")
+def read_root():
+    return {
+        "name": config.get("name", "Customer Support Simulator"),
+        "status": "online",
+        "tasks": list(TASKS.keys())
+    }
+
+@app.get("/health")
+def health_check():
+    return {"status": "healthy"}
+
+@app.get("/metadata")
+def get_metadata():
+    return {
+        "name": config.get("name"),
+        "version": config.get("version"),
+        "description": config.get("description").strip()
+    }
+
+@app.get("/schema")
+def get_schema():
+    return {
+        "action": config.get("action_schema"),
+        "observation": config.get("observation_schema"),
+        "state": {
+            "type": "dict",
+            "properties": {
+                "task_id": {"type": "string"},
+                "ticket_id": {"type": "string"},
+                "done": {"type": "boolean"},
+                "score": {"type": "number"}
+            }
+        }
+    }
+
+@app.post("/mcp")
+def mcp_endpoint(req: Dict[str, Any]):
+    # Basic JSON-RPC 2.0 shell for MCP 
+    return {
+        "jsonrpc": "2.0",
+        "id": req.get("id"),
+        "result": {"status": "active"}
+    }
 
 class GraderRequest(BaseModel):
     task_id: str
@@ -22,10 +73,14 @@ class ResetRequest(BaseModel):
 global_env = SupportEnv()
 
 @app.post("/reset")
-def env_reset(req: ResetRequest):
+def env_reset(req: ResetRequest = None):
+    if req is None:
+        req = ResetRequest()
+        
     try:
         obs = global_env.reset(req.task_id)
-        return {"observation": obs.dict()}
+        # Return observation directly at the root for OpenEnv compatibility
+        return obs.dict()
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
 
@@ -35,9 +90,9 @@ def env_step(action: Action):
         obs, reward, done, info = global_env.step(action)
         return {
             "observation": obs.dict(),
-            "reward": reward.dict(),
+            "reward": reward.score, # Return float score for standard compatibility
             "done": done,
-            "info": info
+            "info": {**info, "reason": reward.reason} # Put reason into info
         }
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
@@ -104,4 +159,5 @@ def run_baseline():
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    port = int(os.getenv("PORT", 8000))
+    uvicorn.run(app, host="0.0.0.0", port=port)
