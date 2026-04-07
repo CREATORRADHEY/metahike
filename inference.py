@@ -6,16 +6,24 @@ from core.types import Action
 from core.tasks import TASKS
 
 def get_client():
-    api_key = os.environ.get("OPENAI_API_KEY")
+    # Priority 1: Validator's proxy variables
+    api_key = os.environ.get("API_KEY")
+    base_url = os.environ.get("API_BASE_URL")
+    
+    # Priority 2: Fallback to standard OpenAI variable
+    if not api_key:
+        api_key = os.environ.get("OPENAI_API_KEY")
+    
     if not api_key:
         return None
-    return openai.OpenAI(api_key=api_key)
+        
+    return openai.OpenAI(api_key=api_key, base_url=base_url)
 
 def run_task(env: SupportEnv, task_id: str, model="gpt-4o-mini") -> float:
     print(f"[START] task={task_id}", flush=True)
     client = get_client()
     if not client:
-        print(f"Error: OPENAI_API_KEY not set. Cannot run task {task_id}.", flush=True)
+        print(f"Error: API_KEY/OPENAI_API_KEY not set. Cannot run task {task_id}.", flush=True)
         print(f"[END] task={task_id} score=0.0 steps=0", flush=True)
         return 0.0
         
@@ -79,8 +87,8 @@ def main():
     env = SupportEnv()
     scores = {}
     
-    if not os.environ.get("OPENAI_API_KEY"):
-        print("WARNING: OPENAI_API_KEY not set. Baseline will report 0.0 for all tasks.", flush=True)
+    if not os.environ.get("API_KEY") and not os.environ.get("OPENAI_API_KEY"):
+        print("WARNING: No API key found (API_KEY or OPENAI_API_KEY). Baseline will report 0.0 for all tasks.", flush=True)
 
     for task_id in TASKS.keys():
         print(f"Running baseline for {task_id}...", flush=True)
