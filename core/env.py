@@ -9,7 +9,7 @@ class SupportEnv:
         self.instance: TaskInstance = None
         self.history = []
         self.done = True
-        self.score = 0.0
+        self.score = 0.01
 
     def reset(self, task_id: str) -> Observation:
         if task_id not in TASKS:
@@ -20,7 +20,7 @@ class SupportEnv:
         self.instance = self.task.sample_instance()
         self.history = []
         self.done = False
-        self.score = 0.0
+        self.score = 0.01
         
         return self._get_observation()
 
@@ -53,9 +53,8 @@ class SupportEnv:
         self.score += score_update
         # Bound score logically between 0.0 and 1.0 overall
         # Validator requires strict (0, 1) range
-        current_score = max(0.0, min(1.0, self.score))
-        if done:
-            current_score = max(0.01, min(0.99, current_score))
+        self.score = max(0.01, min(0.99, self.score))
+        current_score = self.score
         
         reward = Reward(
             score=current_score,
