@@ -5,9 +5,16 @@ from core.env import SupportEnv
 from core.types import Action
 from core.tasks import TASKS
 
-client = openai.OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
+def get_client():
+    api_key = os.environ.get("OPENAI_API_KEY")
+    if not api_key:
+        return None
+    return openai.OpenAI(api_key=api_key)
 
 def run_task(env: SupportEnv, task_id: str, model="gpt-4o-mini") -> float:
+    client = get_client()
+    if not client:
+        raise ValueError("OPENAI_API_KEY not set.")
     obs = env.reset(task_id)
     done = False
     
