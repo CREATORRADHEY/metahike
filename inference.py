@@ -12,11 +12,14 @@ def get_client():
     return openai.OpenAI(api_key=api_key)
 
 def run_task(env: SupportEnv, task_id: str, model="gpt-4o-mini") -> float:
+    print(f"[START] task={task_id}", flush=True)
     client = get_client()
     if not client:
-        raise ValueError("OPENAI_API_KEY not set.")
+        print(f"Error: OPENAI_API_KEY not set. Cannot run task {task_id}.", flush=True)
+        print(f"[END] task={task_id} score=0.0 steps=0", flush=True)
+        return 0.0
+        
     obs = env.reset(task_id)
-    print(f"[START] task={task_id}", flush=True)
     done = False
     
     # Simple prompt describing the environment action space
@@ -73,13 +76,12 @@ def run_task(env: SupportEnv, task_id: str, model="gpt-4o-mini") -> float:
     return env.score
 
 def main():
-    if not os.environ.get("OPENAI_API_KEY"):
-        print("OPENAI_API_KEY not set. Cannot run baseline.", flush=True)
-        return
-
     env = SupportEnv()
     scores = {}
     
+    if not os.environ.get("OPENAI_API_KEY"):
+        print("WARNING: OPENAI_API_KEY not set. Baseline will report 0.0 for all tasks.", flush=True)
+
     for task_id in TASKS.keys():
         print(f"Running baseline for {task_id}...", flush=True)
         try:
