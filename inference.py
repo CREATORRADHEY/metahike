@@ -16,6 +16,7 @@ def run_task(env: SupportEnv, task_id: str, model="gpt-4o-mini") -> float:
     if not client:
         raise ValueError("OPENAI_API_KEY not set.")
     obs = env.reset(task_id)
+    print(f"[START] task={task_id}", flush=True)
     done = False
     
     # Simple prompt describing the environment action space
@@ -60,35 +61,37 @@ def run_task(env: SupportEnv, task_id: str, model="gpt-4o-mini") -> float:
             # Execute in env
             action = Action(**action_json)
             obs, reward, done, info = env.step(action)
+            print(f"[STEP] step={step_count+1} reward={reward.score}", flush=True)
             
         except Exception as e:
-            print(f"Error in step: {e}")
+            print(f"Error in step: {e}", flush=True)
             break
             
         step_count += 1
         
+    print(f"[END] task={task_id} score={env.score} steps={step_count}", flush=True)
     return env.score
 
 def main():
     if not os.environ.get("OPENAI_API_KEY"):
-        print("OPENAI_API_KEY not set. Cannot run baseline.")
+        print("OPENAI_API_KEY not set. Cannot run baseline.", flush=True)
         return
 
     env = SupportEnv()
     scores = {}
     
     for task_id in TASKS.keys():
-        print(f"Running baseline for {task_id}...")
+        print(f"Running baseline for {task_id}...", flush=True)
         try:
             score = run_task(env, task_id)
             scores[task_id] = score
-            print(f"Finished {task_id} with score: {score}")
+            print(f"Finished {task_id} with score: {score}", flush=True)
         except Exception as e:
             scores[task_id] = 0.0
-            print(f"Failed {task_id}: {e}")
+            print(f"Failed {task_id}: {e}", flush=True)
             
-    print("\n--- FINAL SCORES ---")
-    print(json.dumps(scores))
+    print("\n--- FINAL SCORES ---", flush=True)
+    print(json.dumps(scores), flush=True)
 
 if __name__ == "__main__":
     main()
