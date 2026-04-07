@@ -134,8 +134,9 @@ def run_grader(req: GraderRequest):
         raise HTTPException(status_code=404, detail="Ticket ID not found for this task")
         
     score, reason, done = task.evaluate(instance, req.history)
+    clamped_score = max(0.01, min(0.99, score)) if done else score
     return {
-        "score": score,
+        "score": clamped_score,
         "reason": reason,
         "done": done
     }

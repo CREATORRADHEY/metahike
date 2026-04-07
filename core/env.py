@@ -51,8 +51,11 @@ class SupportEnv:
         score_update, reason, done = self.task.evaluate(self.instance, self.history)
         
         self.score += score_update
-        # Bound score logically between 0.0 and 1.0 overall if we want
+        # Bound score logically between 0.0 and 1.0 overall
+        # Validator requires strict (0, 1) range
         current_score = max(0.0, min(1.0, self.score))
+        if done:
+            current_score = max(0.01, min(0.99, current_score))
         
         reward = Reward(
             score=current_score,

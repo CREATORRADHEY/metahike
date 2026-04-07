@@ -44,9 +44,11 @@ class TaskCategorize(SupportTask):
         if last_action.get("action_type") == "submit":
             prediction = last_action.get("value", {}).get("category", "")
             if prediction.lower() == instance.metadata["topic"].lower():
-                return 1.0, "Correctly categorized", True
+                final_score = 0.99 # Clamped from 1.0
+                return final_score, "Correctly categorized", True
             else:
-                return 0.0, f"Incorrect category. Expected {instance.metadata['topic']}", True
+                final_score = 0.01 # Clamped from 0.0
+                return final_score, f"Incorrect category. Expected {instance.metadata['topic']}", True
                 
         # Partial rewards during exploration
         if last_action.get("action_type") == "think":
@@ -91,7 +93,8 @@ class TaskExtract(SupportTask):
             else:
                 reasons.append("Incorrect Order ID")
                 
-            return score, " | ".join(reasons), True
+            clamped_score = max(0.01, min(0.99, score))
+            return clamped_score, " | ".join(reasons), True
             
         return 0.0, "Continue", False
 
@@ -155,7 +158,8 @@ class TaskDraft(SupportTask):
             else:
                 reasons.append("Policy rule missing in draft")
                 
-            return score, " | ".join(reasons), True
+            clamped_score = max(0.01, min(0.99, score))
+            return clamped_score, " | ".join(reasons), True
             
         return 0.0, "Continue", False
 
